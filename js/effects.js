@@ -1,4 +1,5 @@
 import { DOM, S } from "./state.js";
+import * as C from "./constants.js";
 
 const ctx = DOM.ctx;
 
