@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tukang Kayu</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="gameRoot">
+  <canvas id="gameCanvas"></canvas>
+
+  <div class="hud">
+    <div class="hudLeft">
+      <div class="scoreBox" id="scoreBox">0</div>
+      <div class="modeBox" id="modeBox">Classic</div>
+      <div class="comboBox hidden" id="comboBox">Combo x0</div>
+    </div>
+    <div class="timerWrap">
+      <div class="timerTrack">
+        <div class="timerFill" id="timerFill" style="width:100%"></div>
+      </div>
+    </div>
+    <div class="hudRight">
+      <div class="bestBox" id="bestBox">Terbaik: 0</div>
+      <button class="pauseBtn" id="pauseBtn">❚❚</button>
+    </div>
+  </div>
+
+  <div class="tapZones" id="tapZones">
+    <div class="tapZone" data-side="left"></div>
+    <div class="tapZone" data-side="right"></div>
+  </div>
+
+  <div class="controlsHint">Tap kiri / kanan layar, atau tombol arah kiri / kanan</div>
+
+  <div class="overlay" id="startOverlay">
+    <div class="card">
+      <h1>Tukang Kayu</h1>
+      <p>Pindah sisi untuk menebang pohon. Jangan menebang ke sisi yang ada ranting.<br><br>
+      <strong>Fitur:</strong> Burung di ranting memberi skor bonus! Combo beruntun kasih waktu ekstra!</p>
+      <div class="modeSelect">
+        <button class="modeBtn" data-mode="classic">
+          <span class="modeIcon">⏱️</span>
+          <span class="modeLabel">Classic</span>
+          <span class="modeDesc">Timer 10 detik</span>
+        </button>
+        <button class="modeBtn" data-mode="endless">
+          <span class="modeIcon">♾️</span>
+          <span class="modeLabel">Endless</span>
+          <span class="modeDesc">Tanpa waktu</span>
+        </button>
+        <button class="modeBtn" data-mode="zen">
+          <span class="modeIcon">🧘</span>
+          <span class="modeLabel">Zen</span>
+          <span class="modeDesc">Santai, ranting jarang</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="gameOverOverlay">
+    <div class="card">
+      <div class="gameOverMode" id="gameOverMode"></div>
+      <div class="scoreLine">Skor kamu<strong id="finalScore">0</strong></div>
+      <div class="newBest" id="newBestTag">Skor terbaik baru!</div>
+      <div class="highScores" id="highScoresBox">
+        <div class="hsTitle">Papan Skor</div>
+        <ol class="hsList" id="hsList"></ol>
+      </div>
+      <div class="btnRow">
+        <button class="btnSecond" id="menuFromOverBtn">Menu</button>
+        <button class="playBtn" id="retryBtn">Main Lagi</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="pauseOverlay">
+    <div class="card">
+      <h1>Jeda</h1>
+      <p>Permainan dijeda.</p>
+      <div class="btnRow">
+        <button class="btnSecond" id="menuFromPauseBtn">Menu</button>
+        <button class="playBtn" id="resumeBtn">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>
