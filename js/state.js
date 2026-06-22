@@ -29,6 +29,10 @@ export const DOM = {
   legendBtn: document.getElementById("legendBtn"),
   legendOverlay: document.getElementById("legendOverlay"),
   legendCloseBtn: document.getElementById("legendCloseBtn"),
+  nameInput: document.getElementById("nameInput"),
+  nameInputWrap: document.getElementById("nameInputWrap"),
+  nameSubmitBtn: document.getElementById("nameSubmitBtn"),
+  nameResetBtn: document.getElementById("nameResetBtn"),
 };
 
 export const S = {

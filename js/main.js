@@ -1,6 +1,6 @@
 import * as C from "./constants.js";
 import { DOM, S, resize, updateModeUI, updateTimerUI } from "./state.js";
-import { chop, reset, tick } from "./logic.js";
+import { chop, reset, tick, submitPlayerName, resetPlayerName } from "./logic.js";
 import { initAudio, toggleMute, isMuted, startBGM, stopBGM } from "./audio.js";
 import { draw } from "./renderer.js";
 
@@ -79,6 +79,11 @@ DOM.menuFromOverBtn.addEventListener("click", goToMenu);
 DOM.menuFromPauseBtn.addEventListener("click", goToMenu);
 DOM.resumeBtn.addEventListener("click", togglePause);
 DOM.pauseBtn.addEventListener("click", togglePause);
+if (DOM.nameSubmitBtn) DOM.nameSubmitBtn.addEventListener("click", submitPlayerName);
+if (DOM.nameInput) DOM.nameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") submitPlayerName();
+});
+if (DOM.nameResetBtn) DOM.nameResetBtn.addEventListener("click", resetPlayerName);
 
 DOM.tapZones.addEventListener("click", (e) => {
   const zone = e.target.closest(".tapZone");

@@ -272,15 +272,48 @@ html, body {
 
 .hsList li {
   padding: 2px 0;
-}
-
-.hsList li {
-  padding: 2px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .hsList li.current {
   color: var(--danger);
   font-weight: 700;
+}
+
+.nameInputWrap {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 10px 0 6px;
+  align-items: center;
+}
+.nameInputWrap.hidden { display: none; }
+.nameInputWrap input {
+  flex: 1;
+  max-width: 140px;
+  padding: 8px 12px;
+  border: 2px solid var(--wood-light);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  background: rgba(255,255,255,0.5);
+}
+.nameInputWrap input:focus {
+  border-color: var(--leaf);
+}
+.nameInputWrap .playBtn {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.nameResetBtn {
+  margin-top: 8px;
+  font-size: 11px;
+  padding: 4px 10px;
+  opacity: 0.4;
 }
 
 .btnRow {
