@@ -55,6 +55,9 @@ Saat kena ranting, dedaunan hijau beterbangan ke samping.
 ### Confetti 🎊
 Saat mencetak **skor terbaik baru**, konfeti warna-warni turun di layar.
 
+### Siklus Siang-Malam 🌤️🌙
+Suasana berubah gradual dari **pagi** (skor 0, hangat), **siang** (skor 20, cerah), **sore** (skor 50, jingga), hingga **malam** (skor 100, gelap berbintang). Semua warna langit, tanah, dan awan berubah mulus.
+
 ### Efek Suara 🔊
 - Tebasan berhasil → *chop* pendek
 - Kena ranting → *thud* berat
@@ -137,15 +140,16 @@ Arsitektur modular dengan ES modules (`type="module"`):
 
 | File | Baris | Isi |
 |------|-------|-----|
-| `index.html` | 95 | Hanya struktur HTML |
-| `css/style.css` | 437 | CSS & variabel warna, mode buttons, mute, overlay transisi |
+| `index.html` | 139 | Hanya struktur HTML + legend modal |
+| `css/style.css` | 511 | CSS & variabel warna, mode buttons, mute, overlay transisi, legend |
 | `js/constants.js` | 25 | Semua konstanta game (termasuk power-up & mode) |
 | `js/audio.js` | 87 | Suara (Web Audio API), BGM, mute, vibrate |
-| `js/state.js` | 238 | State, DOM refs, UI update, partikel (chip, leaf, confetti, popup, fallenLog) |
-| `js/logic.js` | 280 | Inti game: chop, timer, pohon, burung, combo, mode, power-up |
-| `js/renderer.js` | 299 | Semua fungsi gambar Canvas 2D (tree, player, shield, slow-mo) |
-| `js/effects.js` | 29 | Efek partikel (leaf, confetti) |
-| `js/main.js` | 116 | Entry point: event handler, game loop, init, menu, gesture, mute |
+| `js/state.js` | 241 | State, DOM refs, UI update, partikel (chip, leaf, confetti, popup, fallenLog) |
+| `js/logic.js` | 284 | Inti game: chop, timer, pohon, burung, combo, mode, power-up |
+| `js/renderer.js` | 282 | Fungsi gambar Canvas 2D (background dinamis, tree, player, shield, slow-mo, stars) |
+| `js/effects.js` | 74 | Efek partikel (leaf, confetti, chips, popups, fallen logs) |
+| `js/palette.js` | 35 | Sistem palet warna dinamis (pagi/siang/sore/malam) |
+| `js/main.js` | 116 | Entry point: event handler, game loop, init, menu, gesture, mute, legend |
 
 **Aturan:** setiap file JS maksimal 300 baris. Jika melebihi, harus dipecah.
 

@@ -1,11 +1,13 @@
 import * as C from "./constants.js";
 import { DOM, S } from "./state.js";
-import { drawLeaves, drawConfetti } from "./effects.js";
+import { drawLeaves, drawConfetti, drawChips, drawPopups, drawFallenLogs } from "./effects.js";
+import { getPalette } from "./palette.js";
 
-const ctx = DOM.ctx;function drawCloud(x, y, s) {
+const ctx = DOM.ctx;
+function drawCloud(x, y, s, p) {
   ctx.save();
-  ctx.globalAlpha = 0.85;
-  ctx.fillStyle = "#FFFFFF";
+  ctx.globalAlpha = Math.max(0.2, 0.85 - p.starA * 0.7);
+  ctx.fillStyle = p.cloud;
   ctx.beginPath();
   ctx.ellipse(x, y, 28 * s, 16 * s, 0, 0, Math.PI * 2);
   ctx.ellipse(x + 22 * s, y + 4 * s, 20 * s, 13 * s, 0, 0, Math.PI * 2);
@@ -15,15 +17,21 @@ const ctx = DOM.ctx;function drawCloud(x, y, s) {
 }
 
 function drawBackground() {
-  ctx.fillStyle = "#3D5C2F";
+  const p = getPalette(S.score);
+  const grad = ctx.createLinearGradient(0, 0, 0, S.groundY);
+  grad.addColorStop(0, p.skyTop);
+  grad.addColorStop(1, p.skyBot);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, S.W, S.groundY);
+  ctx.fillStyle = p.ground;
   ctx.fillRect(0, S.groundY, S.W, S.H - S.groundY);
-  ctx.fillStyle = "#2A4220";
+  ctx.fillStyle = p.edge;
   ctx.fillRect(0, S.groundY, S.W, 10);
 
   for (let i = 0; i < 5; i++) {
     const cx = S.W * 0.15 + i * S.W * 0.22;
     const cy = 70 + (i % 2) * 40;
-    drawCloud(cx, cy, 1 + (i % 2) * 0.3);
+    drawCloud(cx, cy, 1 + (i % 2) * 0.3, p);
   }
 }
 
@@ -238,47 +246,20 @@ function drawPlayer() {
     ctx.restore();
   }
 }
-function drawChips() {
-  for (const c of S.chips) {
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, c.life);
-    ctx.translate(c.x, c.y);
-    ctx.rotate(c.rot);
-    ctx.fillStyle = "#C98A4B";
-    ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size);
-    ctx.restore();
+function drawStars(alpha) {
+  if (alpha <= 0) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = "#FFF";
+  for (let i = 0; i < 50; i++) {
+    const x = ((i * 137.5 + 43) % S.W);
+    const y = ((i * 97.3 + 17) % (S.groundY * 0.8));
+    const r = 0.5 + (i % 3) * 0.5;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
   }
-}
-function drawPopups() {
-  for (const p of S.popups) {
-    const alpha = Math.max(0, p.life / 0.9);
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.translate(p.x, p.y);
-    ctx.fillStyle = p.color;
-    ctx.font = "bold 28px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.strokeStyle = "rgba(0,0,0,0.8)";
-    ctx.lineWidth = 4;
-    ctx.strokeText(p.text, 0, 0);
-    ctx.fillText(p.text, 0, 0);
-    ctx.restore();
-  }
-}
-function drawFallenLogs() {
-  for (const f of S.fallenLogs) {
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, f.life * 1.5);
-    ctx.translate(f.x, f.y);
-    ctx.rotate(f.rot);
-    ctx.fillStyle = "#A9713F";
-    ctx.fillRect(-32, -C.LOG_HEIGHT / 2, 64, C.LOG_HEIGHT);
-    ctx.fillStyle = "rgba(111,69,24,0.35)";
-    ctx.fillRect(-32, -C.LOG_HEIGHT / 2, 10, C.LOG_HEIGHT);
-    ctx.fillRect(22, -C.LOG_HEIGHT / 2, 10, C.LOG_HEIGHT);
-    ctx.restore();
-  }
+  ctx.restore();
 }
 export function draw() {
   ctx.save();
@@ -286,6 +267,7 @@ export function draw() {
     ctx.translate((Math.random() - 0.5) * S.shakeMag, (Math.random() - 0.5) * S.shakeMag);
   }
   ctx.clearRect(-20, -20, S.W + 40, S.H + 40);
+  drawStars(getPalette(S.score).starA);
   drawBackground();
   drawConfetti();
   drawTree();
