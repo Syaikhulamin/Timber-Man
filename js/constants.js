@@ -17,3 +17,9 @@ export const HS_KEY = "woodcutterHighScores";
 export const MODE_CLASSIC = "classic";
 export const MODE_ENDLESS = "endless";
 export const MODE_ZEN = "zen";
+
+export const SHIELD_CHANCE = 0.06;
+export const SLOWMO_CHANCE = 0.08;
+export const SLOWMO_DURATION = 3;
+export const GOLD_LOG_CHANCE = 0.10;
+export const GOLD_LOG_BONUS = 3;

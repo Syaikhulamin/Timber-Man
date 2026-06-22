@@ -25,6 +25,7 @@ export const DOM = {
   menuFromOverBtn: document.getElementById("menuFromOverBtn"),
   menuFromPauseBtn: document.getElementById("menuFromPauseBtn"),
   tapZones: document.getElementById("tapZones"),
+  muteBtn: document.getElementById("muteBtn"),
 };
 
 export const S = {
@@ -43,6 +44,10 @@ export const S = {
   popups: [],
   swingFrames: 0,
   combo: 0,
+  shield: 0,
+  slowMo: 0,
+  leaves: [],
+  confetti: [],
 };
 
 export function resize() {
@@ -149,6 +154,63 @@ export function updatePopups(dt) {
   }
 }
 
+export function spawnLeaves(side, y) {
+  const dir = side === "left" ? 1 : -1;
+  for (let i = 0; i < 12; i++) {
+    S.leaves.push({
+      x: S.trunkX + dir * (10 + Math.random() * 30),
+      y: y + (Math.random() - 0.5) * 40,
+      vx: dir * (0.5 + Math.random() * 2),
+      vy: -(0.5 + Math.random() * 1.5),
+      rot: Math.random() * Math.PI * 2,
+      vrot: (Math.random() - 0.5) * 3,
+      size: 3 + Math.random() * 4,
+      life: 1,
+    });
+  }
+}
+
+export function updateLeaves(dt) {
+  for (let i = S.leaves.length - 1; i >= 0; i--) {
+    const l = S.leaves[i];
+    l.x += l.vx;
+    l.y += l.vy;
+    l.vy += 0.08;
+    l.rot += l.vrot * dt;
+    l.life -= dt * 0.6;
+    if (l.life <= 0) S.leaves.splice(i, 1);
+  }
+}
+
+export function spawnConfetti() {
+  const colors = ["#FF6B6B", "#F5A623", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7"];
+  for (let i = 0; i < 30; i++) {
+    S.confetti.push({
+      x: S.W * 0.2 + Math.random() * S.W * 0.6,
+      y: -20,
+      vx: (Math.random() - 0.5) * 6,
+      vy: 1 + Math.random() * 3,
+      rot: Math.random() * Math.PI * 2,
+      vrot: (Math.random() - 0.5) * 6,
+      size: 4 + Math.random() * 4,
+      life: 1,
+      color: colors[Math.floor(Math.random() * colors.length)],
+    });
+  }
+}
+
+export function updateConfetti(dt) {
+  for (let i = S.confetti.length - 1; i >= 0; i--) {
+    const c = S.confetti[i];
+    c.x += c.vx;
+    c.y += c.vy;
+    c.vy += 0.1;
+    c.rot += c.vrot * dt;
+    c.life -= dt * 0.25;
+    if (c.life <= 0) S.confetti.splice(i, 1);
+  }
+}
+
 export function spawnFallenLog(side) {
   const dir = side === "left" ? -1 : 1;
   S.fallenLogs.push({
@@ -163,10 +225,11 @@ export function spawnFallenLog(side) {
 }
 
 export function updateFallenLogs(dt) {
+  const speedMul = 1 + S.score * 0.006;
   for (let i = S.fallenLogs.length - 1; i >= 0; i--) {
     const f = S.fallenLogs[i];
-    f.x += f.vx;
-    f.y += f.vy;
+    f.x += f.vx * speedMul;
+    f.y += f.vy * speedMul;
     f.vy += 0.5;
     f.rot += f.vrot * dt;
     f.life -= dt;

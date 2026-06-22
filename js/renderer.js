@@ -1,9 +1,8 @@
 import * as C from "./constants.js";
 import { DOM, S } from "./state.js";
+import { drawLeaves, drawConfetti } from "./effects.js";
 
-const ctx = DOM.ctx;
-
-function drawCloud(x, y, s) {
+const ctx = DOM.ctx;function drawCloud(x, y, s) {
   ctx.save();
   ctx.globalAlpha = 0.85;
   ctx.fillStyle = "#FFFFFF";
@@ -28,22 +27,40 @@ function drawBackground() {
   }
 }
 
-function drawBranch(bx, by, dir) {
-  const len = 58, thick = 16;
-  ctx.fillStyle = "#8B5A2B";
-  ctx.fillRect(dir > 0 ? bx : bx - len, by - thick / 2, len, thick);
+const BRANCH_STYLES = [
+  { w: "#8B5A2B", l1: "#4A7C2A", l2: "#38601F", len:58, th:16 },
+  { w: "#9B6A3B", l1: "#D4A025", l2: "#B8860B", len:52, th:14 },
+  { w: "#7B4A1B", l1: "#C0392B", l2: "#922B21", len:56, th:18 },
+  { w: "#8B6B3B", l1: "#6B8E23", l2: "#556B2F", len:64, th:14 },
+  { w: "#8B7B3B", l1: "#9ACD32", l2: "#7CB342", len:54, th:15 },
+  { w: "#8B5A2B", l1: "#4A7C2A", l2: "#38601F", len:62, th:17, berry:"#E74C3C" },
+  { w: "#6B4A2B", l1: "#8B4513", l2: "#6B3410", len:48, th:13 },
+  { w: "#9B7A4B", l1: "#66CDAA", l2: "#3CB371", len:60, th:16 },
+];
 
-  const lx = bx + dir * len;
-  ctx.fillStyle = "#4A7C2A";
+function drawBranch(bx, by, dir, si) {
+  const s = BRANCH_STYLES[si] || BRANCH_STYLES[0];
+  ctx.fillStyle = s.w;
+  ctx.fillRect(dir > 0 ? bx : bx - s.len, by - s.th / 2, s.len, s.th);
+  const lx = bx + dir * s.len;
+  ctx.fillStyle = s.l1;
   ctx.beginPath();
   ctx.ellipse(lx, by - 6, 26, 22, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = "#38601F";
+  ctx.fillStyle = s.l2;
   ctx.beginPath();
   ctx.ellipse(lx + dir * 10, by + 8, 16, 14, 0, 0, Math.PI * 2);
   ctx.fill();
+  if (s.berry) {
+    ctx.fillStyle = s.berry;
+    ctx.beginPath();
+    ctx.arc(lx + dir * 6, by - 14, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(lx + dir * 14, by - 8, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
-
 function drawBird(x, y, dir, flap) {
   const bob = Math.sin(flap * 8) * 2;
   ctx.save();
@@ -75,21 +92,26 @@ function drawBird(x, y, dir, flap) {
 
   ctx.restore();
 }
-
-function drawLogSegment(log, wy, isBottom) {
-  const tw = 64, left = S.trunkX - tw / 2, top = wy - C.LOG_HEIGHT;
-
-  ctx.fillStyle = "#A9713F";
+function drawLogBody(left, top, tw, wy, fill, stripe, stroke) {
+  ctx.fillStyle = fill;
   ctx.fillRect(left, top, tw, C.LOG_HEIGHT);
-  ctx.fillStyle = "rgba(111,69,24,0.35)";
+  ctx.fillStyle = stripe;
   ctx.fillRect(left, top, 10, C.LOG_HEIGHT);
   ctx.fillRect(left + tw - 10, top, 10, C.LOG_HEIGHT);
-  ctx.strokeStyle = "#6F4518";
+  ctx.strokeStyle = stroke;
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(left, wy);
   ctx.lineTo(left + tw, wy);
   ctx.stroke();
+}
+function drawLogSegment(log, wy, isBottom) {
+  const tw = 64, left = S.trunkX - tw / 2, top = wy - C.LOG_HEIGHT;
+  if (log.gold) {
+    drawLogBody(left, top, tw, wy, "#F5D742", "rgba(200,170,20,0.35)", "#B8960F");
+  } else {
+    drawLogBody(left, top, tw, wy, "#A9713F", "rgba(111,69,24,0.35)", "#6F4518");
+  }
 
   if (isBottom) {
     ctx.fillStyle = "#D9B58A";
@@ -104,14 +126,13 @@ function drawLogSegment(log, wy, isBottom) {
   }
 
   if (log.branch === C.BRANCH_LEFT) {
-    drawBranch(left, top + C.LOG_HEIGHT * 0.2, -1);
+    drawBranch(left, top + C.LOG_HEIGHT * 0.2, -1, log.branchStyle);
     if (log.bird) drawBird(left - 10, top + C.LOG_HEIGHT * 0.2 - 8, -1, log.bird.flap);
   } else if (log.branch === C.BRANCH_RIGHT) {
-    drawBranch(left + tw, top + C.LOG_HEIGHT * 0.2, 1);
+    drawBranch(left + tw, top + C.LOG_HEIGHT * 0.2, 1, log.branchStyle);
     if (log.bird) drawBird(left + tw + 10, top + C.LOG_HEIGHT * 0.2 - 8, 1, log.bird.flap);
   }
 }
-
 function drawTree() {
   for (let i = 0; i < S.logs.length; i++) {
     const wy = S.groundY - i * C.LOG_HEIGHT;
@@ -119,7 +140,43 @@ function drawTree() {
     drawLogSegment(S.logs[i], wy, i === 0);
   }
 }
-
+function drawShieldIndicator() {
+  if (S.shield <= 0) return;
+  const x = S.trunkX - 80, y = S.groundY - 20;
+  ctx.save();
+  ctx.fillStyle = "#4ECDC4";
+  ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.beginPath();
+  ctx.arc(x, y, 14, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(78,205,196,0.2)";
+  ctx.fill();
+  ctx.strokeStyle = "#4ECDC4";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = "#4ECDC4";
+  ctx.fillText("🛡", x, y + 1);
+  ctx.fillStyle = "#FFF";
+  ctx.font = "bold 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  ctx.fillText("x" + S.shield, x, y + 28);
+  ctx.restore();
+}
+function drawSlowMoIndicator() {
+  if (S.slowMo <= 0) return;
+  ctx.save();
+  ctx.fillStyle = "rgba(135,206,235,0.12)";
+  ctx.fillRect(0, 0, S.W, S.H);
+  ctx.fillStyle = "#87CEEB";
+  ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.strokeStyle = "rgba(0,0,0,0.5)";
+  ctx.lineWidth = 3;
+  ctx.strokeText("🐌 SLOW", S.trunkX, 60);
+  ctx.fillText("🐌 SLOW", S.trunkX, 60);
+  ctx.restore();
+}
 function drawPlayer() {
   const flip = S.playerSide === "left" ? -1 : 1;
   const sx = S.trunkX + flip * 58, sy = S.groundY;
@@ -181,7 +238,6 @@ function drawPlayer() {
     ctx.restore();
   }
 }
-
 function drawChips() {
   for (const c of S.chips) {
     ctx.save();
@@ -193,7 +249,6 @@ function drawChips() {
     ctx.restore();
   }
 }
-
 function drawPopups() {
   for (const p of S.popups) {
     const alpha = Math.max(0, p.life / 0.9);
@@ -211,7 +266,6 @@ function drawPopups() {
     ctx.restore();
   }
 }
-
 function drawFallenLogs() {
   for (const f of S.fallenLogs) {
     ctx.save();
@@ -226,21 +280,21 @@ function drawFallenLogs() {
     ctx.restore();
   }
 }
-
 export function draw() {
   ctx.save();
-
   if (S.shakeFrames > 0) {
     ctx.translate((Math.random() - 0.5) * S.shakeMag, (Math.random() - 0.5) * S.shakeMag);
   }
-
   ctx.clearRect(-20, -20, S.W + 40, S.H + 40);
   drawBackground();
+  drawConfetti();
   drawTree();
   drawPlayer();
+  drawShieldIndicator();
+  drawSlowMoIndicator();
   drawFallenLogs();
   drawPopups();
   drawChips();
-
+  drawLeaves();
   ctx.restore();
 }

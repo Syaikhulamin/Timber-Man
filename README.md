@@ -26,7 +26,7 @@ Skor tertinggi disimpan terpisah per mode.
 ## Fitur
 
 ### Popup Point 🎯
-Setiap tebasan muncul angka floating **"+1"** (biasa) atau **"+2"** (burung, warna emas) yang melayang naik dan memudar. Combo bonus tampil sebagai **"COMBO +0.8s"** warna kuning.
+Setiap tebasan muncul angka floating **"+1"** (biasa), **"+2"** (burung), atau **"+3"** (log emas) yang melayang naik dan memudar. Combo bonus tampil sebagai **"COMBO +0.8s"** warna kuning. Shield & slow-mo muncul sebagai ikon.
 
 ### Burung 🐦
 Burung kadang hinggap di ranting pohon. Tebang log yang ada burungnya untuk dapat **skor double (+2)**. Burung akan terbang setelah beberapa saat — kejar sebelum pergi!
@@ -35,23 +35,51 @@ Burung kadang hinggap di ranting pohon. Tebang log yang ada burungnya untuk dapa
 Tebasan beruntun tanpa kena ranting membangun **combo**. Setiap kelipatan **5 combo**, kamu dapat **bonus waktu +0,8 detik** (Classic) atau tetap ditampilkan sebagai pencapaian (Endless/Zen).
 
 ### Kesulitan Progresif ⬆️
-Makin tinggi skor, makin jarang log tanpa ranting dan makin kecil bonus waktu per tebasan. Permainan makin menantang!
+Makin tinggi skor, makin jarang log tanpa ranting, makin kecil bonus waktu per tebasan, dan makin cepat log jatuh. Permainan makin menantang!
 
 ### Log Jatuh 🪵
-Setiap tebasan, potongan kayu jatuh ke samping disertai efek rotasi dan gravitasi.
+Setiap tebasan, potongan kayu jatuh ke samping disertai efek rotasi dan gravitasi. Kecepatan jatuh meningkat seiring skor.
+
+### Shield 🛡️
+Peluang 6% per tebasan untuk mendapat **shield**. Shield menahan 1 kena ranting lalu hilang. Indikator shield muncul di samping pemain.
+
+### Slow Motion 🐌
+Peluang 8% per tebasan untuk mengaktifkan **slow-mo** selama 3 detik. Waktu berjalan setengah kecepatan, memudahkan reaksi.
+
+### Log Emas 🌟
+Peluang 10% pada log tanpa ranting. Log emas bernilai **+3 poin**, tanpa power-up.
+
+### Daun Jatuh 🍃
+Saat kena ranting, dedaunan hijau beterbangan ke samping.
+
+### Confetti 🎊
+Saat mencetak **skor terbaik baru**, konfeti warna-warni turun di layar.
 
 ### Efek Suara 🔊
 - Tebasan berhasil → *chop* pendek
 - Kena ranting → *thud* berat
 - Burung kena tebang → *chirp* nyaring
 - Combo bonus → nada naik
+- Shield block → *ding* tinggi
+- Log emas → *ting* ceria
+- Slow-mo → dengung rendah
 - Game over → melodi turun
+- **Background music** → melodi procedural 8 nada berulang
+
+### Kontrol Gesture 👆
+Di perangkat sentuh, **geser kiri/kanan** pada layar untuk menebang.
+
+### Getaran 📳
+Di perangkat yang mendukung, getaran halus terasa tiap tebasan (getaran lebih kuat saat kena ranting).
+
+### Mute 🔇
+Tombol **🔊/🔇** di HUD untuk mematikan/menghidupkan semua suara termasuk BGM.
 
 ### Pause & Menu ⏸️
 Tekan **P**, **Escape**, atau tombol **❚❚** di HUD untuk menjeda. Dari layar jeda atau game over, tekan tombol **Menu** atau **M** untuk kembali ke pemilihan mode.
 
 ### Papan Skor 🏆
-5 skor teratas disimpan di `localStorage` dan ditampilkan saat game over.
+5 skor teratas disimpan di `localStorage` dan ditampilkan saat game over. Konfeti jika skor terbaru menjadi nomor satu!
 
 ## Kontrol
 
@@ -109,14 +137,15 @@ Arsitektur modular dengan ES modules (`type="module"`):
 
 | File | Baris | Isi |
 |------|-------|-----|
-| `index.html` | 87 | Hanya struktur HTML |
-| `css/style.css` | 366 | CSS & variabel warna, mode buttons |
-| `js/constants.js` | 19 | Semua konstanta game (termasuk mode) |
-| `js/audio.js` | 47 | Suara (Web Audio API) |
-| `js/state.js` | 171 | State, DOM refs, UI update, fisika partikel, popup |
-| `js/logic.js` | 223 | Inti game: chop, timer, pohon, burung, combo, mode |
-| `js/renderer.js` | 232 | Semua fungsi gambar Canvas 2D |
-| `js/main.js` | 83 | Entry point: event handler, game loop, init, menu |
+| `index.html` | 95 | Hanya struktur HTML |
+| `css/style.css` | 437 | CSS & variabel warna, mode buttons, mute, overlay transisi |
+| `js/constants.js` | 25 | Semua konstanta game (termasuk power-up & mode) |
+| `js/audio.js` | 87 | Suara (Web Audio API), BGM, mute, vibrate |
+| `js/state.js` | 238 | State, DOM refs, UI update, partikel (chip, leaf, confetti, popup, fallenLog) |
+| `js/logic.js` | 280 | Inti game: chop, timer, pohon, burung, combo, mode, power-up |
+| `js/renderer.js` | 299 | Semua fungsi gambar Canvas 2D (tree, player, shield, slow-mo) |
+| `js/effects.js` | 29 | Efek partikel (leaf, confetti) |
+| `js/main.js` | 116 | Entry point: event handler, game loop, init, menu, gesture, mute |
 
 **Aturan:** setiap file JS maksimal 300 baris. Jika melebihi, harus dipecah.
 

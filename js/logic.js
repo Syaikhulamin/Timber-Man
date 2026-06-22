@@ -1,6 +1,6 @@
 import * as C from "./constants.js";
 import * as A from "./audio.js";
-import { DOM, S, updateScoreUI, updateTimerUI, updateComboUI, triggerComboFlash, spawnChips, spawnFallenLog, spawnPopup, updateChips, updateFallenLogs, updatePopups, updateModeUI, getHSKey, shake } from "./state.js";
+import { DOM, S, updateScoreUI, updateTimerUI, updateComboUI, triggerComboFlash, spawnChips, spawnFallenLog, spawnPopup, updateChips, updateFallenLogs, updatePopups, updateModeUI, getHSKey, shake, spawnLeaves, updateLeaves, spawnConfetti, updateConfetti } from "./state.js";
 
 export function getDifficulty() {
   if (S.mode === "zen") {
@@ -39,13 +39,17 @@ function maybeSpawnBird(log) {
   }
 }
 
+function randBranchStyle() {
+  return Math.floor(Math.random() * 8);
+}
+
 export function buildTree() {
   S.logs = [];
-  S.logs.push({ branch: C.BRANCH_NONE, bird: null });
-  S.logs.push({ branch: C.BRANCH_NONE, bird: null });
+  S.logs.push({ branch: C.BRANCH_NONE, bird: null, gold: false, branchStyle: 0 });
+  S.logs.push({ branch: C.BRANCH_NONE, bird: null, gold: false, branchStyle: 0 });
   const diff = getDifficulty();
   for (let i = 2; i < C.TREE_SEGMENTS; i++) {
-    const log = { branch: randBranch(diff.branchNoneProb), bird: null };
+    const log = { branch: randBranch(diff.branchNoneProb), bird: null, gold: false, branchStyle: randBranchStyle() };
     maybeSpawnBird(log);
     S.logs.push(log);
   }
@@ -55,7 +59,8 @@ function addLog() {
   const diff = getDifficulty();
   const last = S.logs[S.logs.length - 1];
   const exclude = last.branch === C.BRANCH_NONE ? null : last.branch;
-  const log = { branch: randBranchExclude(exclude, diff.branchNoneProb), bird: null };
+  const log = { branch: randBranchExclude(exclude, diff.branchNoneProb), bird: null, gold: false, branchStyle: randBranchStyle() };
+  if (log.branch === C.BRANCH_NONE && Math.random() < C.GOLD_LOG_CHANCE) log.gold = true;
   maybeSpawnBird(log);
   S.logs.push(log);
 }
@@ -111,8 +116,21 @@ export function chop(side) {
   const sideVal = side === "left" ? C.BRANCH_LEFT : C.BRANCH_RIGHT;
 
   if (bottom.branch === sideVal) {
+    if (S.shield > 0) {
+      S.shield--;
+      shake(6);
+      A.playShieldSound();
+      spawnPopup(S.trunkX, S.groundY - C.LOG_HEIGHT * 0.4, "SHIELD!", "#4ECDC4");
+      A.vibrate([30, 20, 30]);
+      S.logs.shift();
+      addLog();
+      updateScoreUI();
+      return;
+    }
     shake(10);
     A.playBranchSound();
+    A.vibrate([50, 30, 50]);
+    spawnLeaves(side, S.groundY - C.LOG_HEIGHT * 0.5);
     if (S.mode === "classic") {
       S.stunned = true;
       S.stunFrames = 40;
@@ -125,9 +143,16 @@ export function chop(side) {
     return;
   }
 
+  S.logs.shift();
+  addLog();
+
   let pointGain = 1;
   const popupY = S.groundY - C.LOG_HEIGHT * 0.4;
-  if (bottom.bird) {
+  if (bottom.gold) {
+    pointGain = C.GOLD_LOG_BONUS;
+    spawnPopup(S.trunkX, popupY, "+" + C.GOLD_LOG_BONUS, "#FFD700");
+    A.playGoldSound();
+  } else if (bottom.bird) {
     pointGain = C.BIRD_BONUS;
     spawnPopup(S.trunkX, popupY, "+" + C.BIRD_BONUS, "#F5A623");
     A.playBirdSound();
@@ -139,6 +164,8 @@ export function chop(side) {
   S.score += pointGain;
   S.combo++;
   updateComboUI();
+
+  A.vibrate(15);
 
   if (S.mode === "classic") {
     const diff = getDifficulty();
@@ -154,8 +181,15 @@ export function chop(side) {
     A.playComboSound();
   }
 
-  S.logs.shift();
-  addLog();
+  if (!bottom.gold && Math.random() < C.SHIELD_CHANCE) {
+    S.shield++;
+    spawnPopup(S.trunkX, popupY - 30, "🛡️", "#4ECDC4");
+  }
+  if (!bottom.gold && Math.random() < C.SLOWMO_CHANCE) {
+    S.slowMo = C.SLOWMO_DURATION;
+    spawnPopup(S.trunkX, popupY - 30, "🐌", "#87CEEB");
+    A.playSlowSound();
+  }
 
   shake(4);
   spawnChips(side, S.groundY - C.LOG_HEIGHT * 0.5);
@@ -175,7 +209,9 @@ export function endGame() {
   DOM.finalScoreEl.textContent = String(S.score);
   DOM.gameOverMode.textContent = "Mode: " + (S.mode === "classic" ? "Classic" : S.mode === "endless" ? "Endless" : "Zen");
   DOM.newBestTag.classList.toggle("show", isNew);
+  if (isNew) spawnConfetti();
   showHighScores(S.score);
+  A.stopBGM();
   DOM.gameOverOverlay.classList.remove("hidden");
 }
 
@@ -189,8 +225,12 @@ export function reset() {
   S.chips = [];
   S.fallenLogs = [];
   S.popups = [];
+  S.leaves = [];
+  S.confetti = [];
   S.swingFrames = 0;
   S.combo = 0;
+  S.shield = 0;
+  S.slowMo = 0;
   S.stunned = false;
   S.stunFrames = 0;
   S.paused = false;
@@ -207,6 +247,8 @@ export function tick(dt) {
   if (!S.running) return;
 
   if (!S.paused) {
+    if (S.slowMo > 0) dt *= 0.5;
+
     if (S.mode === "classic") {
       S.timeLeft -= dt;
       updateTimerUI();
@@ -229,11 +271,14 @@ export function tick(dt) {
     updateChips(dt);
     updateFallenLogs(dt);
     updatePopups(dt);
+    updateLeaves(dt);
+    updateConfetti(dt);
     if (S.swingFrames > 0) S.swingFrames--;
     if (S.shakeFrames > 0) S.shakeFrames--;
     if (S.stunFrames > 0) {
       S.stunFrames--;
       if (S.stunFrames <= 0) S.stunned = false;
     }
+    if (S.slowMo > 0) S.slowMo = Math.max(0, S.slowMo - dt);
   }
 }
