@@ -26,6 +26,9 @@ export const DOM = {
   menuFromPauseBtn: document.getElementById("menuFromPauseBtn"),
   tapZones: document.getElementById("tapZones"),
   muteBtn: document.getElementById("muteBtn"),
+  legendBtn: document.getElementById("legendBtn"),
+  legendOverlay: document.getElementById("legendOverlay"),
+  legendCloseBtn: document.getElementById("legendCloseBtn"),
 };
 
 export const S = {

@@ -87,6 +87,16 @@ DOM.tapZones.addEventListener("click", (e) => {
   chop(zone.dataset.side);
 });
 
+DOM.legendBtn.addEventListener("click", () => {
+  DOM.startOverlay.classList.add("hidden");
+  DOM.legendOverlay.classList.remove("hidden");
+});
+
+DOM.legendCloseBtn.addEventListener("click", () => {
+  DOM.legendOverlay.classList.add("hidden");
+  DOM.startOverlay.classList.remove("hidden");
+});
+
 window.addEventListener("keydown", (e) => {
   if (e.key === "p" || e.key === "P" || e.key === "Escape") {
     togglePause();
