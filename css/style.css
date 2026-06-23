@@ -309,13 +309,6 @@ html, body {
   font-size: 14px;
 }
 
-.nameResetBtn {
-  margin-top: 8px;
-  font-size: 11px;
-  padding: 4px 10px;
-  opacity: 0.4;
-}
-
 .btnRow {
   display: flex;
   gap: 10px;

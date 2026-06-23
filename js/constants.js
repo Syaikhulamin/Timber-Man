@@ -5,7 +5,7 @@ export const BRANCH_RIGHT = 2;
 export const LOG_HEIGHT = 78;
 export const TREE_SEGMENTS = 13;
 export const BASE_TIME = 10;
-export const BASE_TIME_PER_CHOP = 0.55;
+export const BASE_TIME_PER_CHOP = 0.25;
 export const BASE_BRANCH_NONE_PROB = 0.45;
 export const BIRD_CHANCE = 0.25;
 export const BIRD_TIMER = 8;
@@ -25,3 +25,5 @@ export const GOLD_LOG_CHANCE = 0.10;
 export const GOLD_LOG_BONUS = 3;
 
 export const PLAYER_NAME_KEY = "woodcutterPlayerName";
+export const HARD_WOOD_SCORE = 15;
+export const HARD_WOOD_CHANCE = 0.18;

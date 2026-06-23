@@ -44,11 +44,11 @@ function randBranchStyle() {
 
 export function buildTree() {
   S.logs = [];
-  S.logs.push({ branch: C.BRANCH_NONE, bird: null, gold: false, branchStyle: 0 });
-  S.logs.push({ branch: C.BRANCH_NONE, bird: null, gold: false, branchStyle: 0 });
+  S.logs.push({ branch: C.BRANCH_NONE, bird: null, gold: false, branchStyle: 0, hp: 1 });
+  S.logs.push({ branch: C.BRANCH_NONE, bird: null, gold: false, branchStyle: 0, hp: 1 });
   const diff = getDifficulty();
   for (let i = 2; i < C.TREE_SEGMENTS; i++) {
-    const log = { branch: randBranch(diff.branchNoneProb), bird: null, gold: false, branchStyle: randBranchStyle() };
+    const log = { branch: randBranch(diff.branchNoneProb), bird: null, gold: false, branchStyle: randBranchStyle(), hp: 1 };
     maybeSpawnBird(log);
     S.logs.push(log);
   }
@@ -58,8 +58,11 @@ function addLog() {
   const diff = getDifficulty();
   const last = S.logs[S.logs.length - 1];
   const exclude = last.branch === C.BRANCH_NONE ? null : last.branch;
-  const log = { branch: randBranchExclude(exclude, diff.branchNoneProb), bird: null, gold: false, branchStyle: randBranchStyle() };
-  if (log.branch === C.BRANCH_NONE && Math.random() < C.GOLD_LOG_CHANCE) log.gold = true;
+  const log = { branch: randBranchExclude(exclude, diff.branchNoneProb), bird: null, gold: false, branchStyle: randBranchStyle(), hp: 1 };
+  if (log.branch === C.BRANCH_NONE) {
+    if (Math.random() < C.GOLD_LOG_CHANCE) log.gold = true;
+    if (S.score >= C.HARD_WOOD_SCORE && Math.random() < C.HARD_WOOD_CHANCE) log.hp = 2;
+  }
   maybeSpawnBird(log);
   S.logs.push(log);
 }
@@ -126,6 +129,8 @@ export function chop(side) {
       updateScoreUI();
       return;
     }
+    S.combo = 0;
+    updateComboUI();
     shake(10);
     A.playBranchSound();
     A.vibrate([50, 30, 50]);
@@ -141,9 +146,6 @@ export function chop(side) {
     }
     return;
   }
-
-  S.logs.shift();
-  addLog();
 
   let pointGain = 1;
   const popupY = S.groundY - C.LOG_HEIGHT * 0.4;
@@ -166,17 +168,11 @@ export function chop(side) {
 
   A.vibrate(15);
 
-  if (S.mode === "classic") {
-    const diff = getDifficulty();
-    S.timeLeft = Math.min(C.BASE_TIME, S.timeLeft + diff.timePerChop);
-  }
-
   if (S.combo > 0 && S.combo % C.COMBO_BONUS_INTERVAL === 0) {
-    if (S.mode === "classic") {
-      S.timeLeft = Math.min(C.BASE_TIME, S.timeLeft + C.COMBO_BONUS_TIME);
-    }
+    const bonus = Math.max(1, Math.floor(pointGain * 0.2));
+    S.score += bonus;
     triggerComboFlash();
-    spawnPopup(S.trunkX + (S.playerSide === "left" ? -40 : 40), popupY, "COMBO +" + C.COMBO_BONUS_TIME + "s", "#E6B800");
+    spawnPopup(S.trunkX + (S.playerSide === "left" ? -40 : 40), popupY, "BONUS +" + bonus, "#E6B800");
     A.playComboSound();
   }
 
@@ -192,7 +188,23 @@ export function chop(side) {
 
   shake(4);
   spawnChips(side, S.groundY - C.LOG_HEIGHT * 0.5);
+
+  if (bottom.hp > 1) {
+    bottom.hp--;
+    spawnPopup(S.trunkX, popupY + 20, "RETAK!", "#8B4513");
+    A.playBranchSound();
+    updateScoreUI();
+    return;
+  }
+
+  S.logs.shift();
+  addLog();
   spawnFallenLog(side);
+
+  if (S.mode === "classic" && !bottom.gold) {
+    const diff = getDifficulty();
+    S.timeLeft = Math.min(C.BASE_TIME, S.timeLeft + diff.timePerChop);
+  }
 
   updateScoreUI();
 }
@@ -225,12 +237,6 @@ export function submitPlayerName() {
   saveHighScores(scores);
   showHighScores(S.score);
 }
-export function resetPlayerName() {
-  localStorage.removeItem(C.PLAYER_NAME_KEY);
-  DOM.nameInput.value = "";
-  DOM.nameInput.focus();
-}
-
 export function reset() {
   S.score = 0;
   S.timeLeft = C.BASE_TIME;

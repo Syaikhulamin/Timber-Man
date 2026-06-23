@@ -100,7 +100,7 @@ function drawBird(x, y, dir, flap) {
 
   ctx.restore();
 }
-function drawLogBody(left, top, tw, wy, fill, stripe, stroke) {
+function drawLogBody(left, top, tw, wy, fill, stripe, stroke, cracked) {
   ctx.fillStyle = fill;
   ctx.fillRect(left, top, tw, C.LOG_HEIGHT);
   ctx.fillStyle = stripe;
@@ -112,10 +112,27 @@ function drawLogBody(left, top, tw, wy, fill, stripe, stroke) {
   ctx.moveTo(left, wy);
   ctx.lineTo(left + tw, wy);
   ctx.stroke();
+  if (cracked) {
+    ctx.strokeStyle = "#2A1A0A";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(left + tw * 0.3, top + 4);
+    ctx.lineTo(left + tw * 0.5, top + C.LOG_HEIGHT * 0.45);
+    ctx.lineTo(left + tw * 0.7, top + C.LOG_HEIGHT - 4);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(left + tw * 0.45, top + 10);
+    ctx.lineTo(left + tw * 0.35, top + C.LOG_HEIGHT * 0.3);
+    ctx.stroke();
+  }
 }
 function drawLogSegment(log, wy, isBottom) {
   const tw = 64, left = S.trunkX - tw / 2, top = wy - C.LOG_HEIGHT;
-  if (log.gold) {
+  const isHard = log.hp > 1;
+  const isCracked = log.hp === 1 && isBottom;
+  if (isHard) {
+    drawLogBody(left, top, tw, wy, "#5C3A1E", "rgba(60,35,10,0.4)", "#3D2210", isCracked);
+  } else if (log.gold) {
     drawLogBody(left, top, tw, wy, "#F5D742", "rgba(200,170,20,0.35)", "#B8960F");
   } else {
     drawLogBody(left, top, tw, wy, "#A9713F", "rgba(111,69,24,0.35)", "#6F4518");

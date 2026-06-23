@@ -32,7 +32,6 @@ export const DOM = {
   nameInput: document.getElementById("nameInput"),
   nameInputWrap: document.getElementById("nameInputWrap"),
   nameSubmitBtn: document.getElementById("nameSubmitBtn"),
-  nameResetBtn: document.getElementById("nameResetBtn"),
 };
 
 export const S = {
