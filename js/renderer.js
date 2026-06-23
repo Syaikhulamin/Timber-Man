@@ -250,6 +250,24 @@ function drawPlayer() {
 
   ctx.restore();
 
+  if (S.shield > 0) {
+    ctx.save();
+    ctx.globalAlpha = 0.25 + Math.sin(Date.now() * 0.006) * 0.1;
+    ctx.strokeStyle = "#4ECDC4";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.arc(sx, sy - 28, 48, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 0.12;
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#4ECDC4";
+    ctx.beginPath();
+    ctx.arc(sx, sy - 28, 48, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   if (S.stunned) {
     ctx.save();
     ctx.fillStyle = "#FF4444";
