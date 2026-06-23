@@ -24,6 +24,5 @@ export const SLOWMO_DURATION = 3;
 export const GOLD_LOG_CHANCE = 0.10;
 export const GOLD_LOG_BONUS = 3;
 
-export const PLAYER_NAME_KEY = "woodcutterPlayerName";
 export const HARD_WOOD_SCORE = 15;
 export const HARD_WOOD_CHANCE = 0.18;

@@ -98,8 +98,7 @@ function showHighScores(current) {
 }
 function updateHighScores(current) {
   const list = loadHighScores();
-  const savedName = localStorage.getItem(C.PLAYER_NAME_KEY) || "Player";
-  list.push({ name: savedName, score: current });
+  list.push({ name: "Player", score: current });
   list.sort((a, b) => b.score - a.score);
   const top = list.slice(0, 5);
   saveHighScores(top);
@@ -221,7 +220,7 @@ export function endGame() {
   DOM.finalScoreEl.textContent = String(S.score);
   DOM.gameOverMode.textContent = "Mode: " + (S.mode === "classic" ? "Classic" : S.mode === "endless" ? "Endless" : "Zen");
   DOM.nameInputWrap.classList.toggle("hidden", !inTop5);
-  if (inTop5) DOM.nameInput.value = localStorage.getItem(C.PLAYER_NAME_KEY) || "";
+  if (inTop5) DOM.nameInput.value = "";
   DOM.newBestTag.classList.toggle("show", isNew);
   if (isNew) spawnConfetti();
   showHighScores(S.score);
@@ -230,7 +229,6 @@ export function endGame() {
 }
 export function submitPlayerName() {
   const name = DOM.nameInput.value.trim().slice(0, 10) || "Player";
-  localStorage.setItem(C.PLAYER_NAME_KEY, name);
   const scores = loadHighScores();
   const entry = scores.find(e => e.score === S.score && e.name === "Player");
   if (entry) entry.name = name;
