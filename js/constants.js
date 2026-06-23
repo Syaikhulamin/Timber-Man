@@ -26,3 +26,5 @@ export const GOLD_LOG_BONUS = 3;
 
 export const HARD_WOOD_SCORE = 15;
 export const HARD_WOOD_CHANCE = 0.18;
+export const DAY_CYCLE = 25;
+

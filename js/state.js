@@ -54,6 +54,8 @@ export const S = {
   slowMo: 0,
   leaves: [],
   confetti: [],
+  lumberjacks: [],
+  timeOfDay: 0,
 };
 
 export function resize() {

@@ -1,4 +1,4 @@
-# Tukang Kayu
+# Timber-Man
 
 Game menebang pohon berbasis HTML5 Canvas — terinspirasi dari game klasik *Timber*.
 

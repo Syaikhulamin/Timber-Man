@@ -257,6 +257,16 @@ export function reset() {
   DOM.pauseOverlay.classList.add("hidden");
   DOM.gameOverOverlay.classList.add("hidden");
   DOM.hsBox.classList.remove("show");
+  S.timeOfDay = 0;
+  S.lumberjacks = [];
+  const lCount = 2 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < lCount; i++) {
+    const side = Math.random() < 0.5 ? -1 : 1;
+    S.lumberjacks.push({
+      x: S.W * (0.5 + side * (0.12 + Math.random() * 0.22)),
+      scale: 0.7 + Math.random() * 0.6,
+    });
+  }
   updateComboUI();
   buildTree();
   updateScoreUI();
@@ -300,5 +310,6 @@ export function tick(dt) {
       if (S.stunFrames <= 0) S.stunned = false;
     }
     if (S.slowMo > 0) S.slowMo = Math.max(0, S.slowMo - dt);
+    S.timeOfDay = (S.timeOfDay + dt) % C.DAY_CYCLE;
   }
 }
