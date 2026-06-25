@@ -113,15 +113,26 @@ Timber/
   css/
     style.css        — semua styling
   js/
-    constants.js     — konstanta game
-    audio.js         — suara (Web Audio API)
-    state.js         — state, DOM refs, UI update, fisika
-    logic.js         — inti game (chop, timer, pohon, burung, combo)
-    renderer.js      — semua fungsi gambar (Canvas 2D)
     main.js          — entry point: event, game loop, init
+    core/            — state & logika game
+      constants.js   — semua konstanta game
+      state.js       — state, DOM refs, UI update
+      logic.js       — inti game (chop, combo, mode, power-up)
+      game.js        — reset & tick (game loop logika)
+      tree.js        — generate pohon, cabang, kesulitan
+      particles.js   — chip, fallenLog, popup, leaf, confetti
+    data/
+      highscores.js  — skor tertinggi (localStorage), endGame
+    audio/
+      audio.js       — suara (Web Audio API), BGM, mute
+    render/          — semua rendering Canvas 2D
+      renderer.js    — hub orchestrator draw()
+      background.js  — langit, awan, matahari, bulan, bintang, lumberjack
+      treeRender.js  — pohon, cabang, burung, log
+      player.js      — player, shield, slow-mo indicator
+      effects.js     — gambar partikel (leaf, confetti, chips, popups, fallenLog)
+      palette.js     — sistem palet warna dinamis
 ```
-
-Setiap file JS ≤300 baris agar mudah dikembangkan dan di-debug.
 
 ## Teknis
 
@@ -136,22 +147,51 @@ Setiap file JS ≤300 baris agar mudah dikembangkan dan di-debug.
 
 ## Pengembangan
 
-Arsitektur modular dengan ES modules (`type="module"`):
+Arsitektur modular dengan ES modules (`type="module"`), dikelompokkan per folder:
+
+### `/js/core/` — State & Logika Game
 
 | File | Baris | Isi |
 |------|-------|-----|
-| `index.html` | 139 | Hanya struktur HTML + legend modal |
-| `css/style.css` | 511 | CSS & variabel warna, mode buttons, mute, overlay transisi, legend |
-| `js/constants.js` | 25 | Semua konstanta game (termasuk power-up & mode) |
-| `js/audio.js` | 87 | Suara (Web Audio API), BGM, mute, vibrate |
-| `js/state.js` | 241 | State, DOM refs, UI update, partikel (chip, leaf, confetti, popup, fallenLog) |
-| `js/logic.js` | 284 | Inti game: chop, timer, pohon, burung, combo, mode, power-up |
-| `js/renderer.js` | 282 | Fungsi gambar Canvas 2D (background dinamis, tree, player, shield, slow-mo, stars) |
-| `js/effects.js` | 74 | Efek partikel (leaf, confetti, chips, popups, fallen logs) |
-| `js/palette.js` | 35 | Sistem palet warna dinamis (pagi/siang/sore/malam) |
-| `js/main.js` | 116 | Entry point: event handler, game loop, init, menu, gesture, mute, legend |
+| `constants.js` | 30 | Semua konstanta game |
+| `state.js` | 113 | State, DOM refs, updateUI |
+| `logic.js` | 108 | Inti game: chop, combo, mode, power-up |
+| `game.js` | 83 | reset & tick (game loop logika) |
+| `tree.js` | 68 | Generate pohon, cabang, burung, kesulitan |
+| `particles.js` | 135 | Spawn/update chip, fallenLog, popup, leaf, confetti |
 
-**Aturan:** setiap file JS maksimal 300 baris. Jika melebihi, harus dipecah.
+### `/js/data/`
+
+| File | Baris | Isi |
+|------|-------|-----|
+| `highscores.js` | 74 | Skor tertinggi (localStorage), endGame, submit nama |
+
+### `/js/audio/`
+
+| File | Baris | Isi |
+|------|-------|-----|
+| `audio.js` | 87 | Suara (Web Audio API), BGM, mute, vibrate |
+
+### `/js/render/` — Semua Rendering Canvas 2D
+
+| File | Baris | Isi |
+|------|-------|-----|
+| `renderer.js` | 31 | Hub orchestrator draw() |
+| `background.js` | 175 | Langit, awan, matahari, bulan, bintang, lumberjack |
+| `treeRender.js` | 132 | Pohon, cabang, burung, log |
+| `player.js` | 123 | Player, shield, slow-mo indicator |
+| `effects.js` | 75 | Gambar partikel (leaf, confetti, chips, popups, fallenLog) |
+| `palette.js` | 35 | Sistem palet warna dinamis |
+
+### Root
+
+| File | Baris | Isi |
+|------|-------|-----|
+| `index.html` | 139 | Struktur HTML + legend modal |
+| `css/style.css` | 511 | CSS & variabel warna, mode buttons, overlay, legend |
+| `js/main.js` | 131 | Entry point: event handler, game loop, init, menu, mute, legend |
+
+**Aturan:** setiap file JS maksimal 180 baris. Jika melebihi, harus dipecah. Impor cukup lihat path folder untuk tahu kategori file.
 
 Jalankan `index.html` via local server (Live Server, `python -m http.server`).
 

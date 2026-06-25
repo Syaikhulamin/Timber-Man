@@ -1,8 +1,10 @@
 import * as C from "./constants.js";
-import { DOM, S, resize, updateModeUI, updateTimerUI } from "./state.js";
-import { chop, reset, tick, submitPlayerName } from "./logic.js";
-import { initAudio, toggleMute, isMuted, startBGM, stopBGM } from "./audio.js";
-import { draw } from "./renderer.js";
+import { DOM, S, resize, updateModeUI, updateTimerUI } from "./core/state.js";
+import { chop } from "./core/logic.js";
+import { reset, tick } from "./core/game.js";
+import { submitPlayerName } from "./data/highscores.js";
+import { initAudio, toggleMute, isMuted, startBGM, stopBGM } from "./audio/audio.js";
+import { draw } from "./render/renderer.js";
 
 function togglePause() {
   if (!S.running) return;

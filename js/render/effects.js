@@ -1,5 +1,5 @@
-import { DOM, S } from "./state.js";
-import * as C from "./constants.js";
+import { DOM, S } from "../core/state.js";
+import * as C from "../core/constants.js";
 
 const ctx = DOM.ctx;
 
