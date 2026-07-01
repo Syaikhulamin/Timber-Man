@@ -1,4 +1,4 @@
-import * as C from "./constants.js";
+import * as C from "./core/constants.js";
 import { DOM, S, resize, updateModeUI, updateTimerUI } from "./core/state.js";
 import { chop } from "./core/logic.js";
 import { reset, tick } from "./core/game.js";
